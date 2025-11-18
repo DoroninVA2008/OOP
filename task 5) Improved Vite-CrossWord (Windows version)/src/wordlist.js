@@ -7,12 +7,16 @@ export class WordList {
   }
 
   addWord(word, description) {
-    this.words.push(new Word(word, description));
-    this.onChange();
-  }
+        if (typeof word && description !== 'string', word && description.trim() === '') {
+          throw new Error("!!!Description!!!");
+        }
+
+        this.words.push(new Word(word, description));
+        this.onChange();
+      }
 
   removeWord(word) {
-    this.words = this.words.filter((w) => w.word !== word);
+    this.words = this.words.filter((w) => !(w.word === word));
     this.onChange();
   }
 

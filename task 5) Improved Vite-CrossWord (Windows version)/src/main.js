@@ -48,18 +48,6 @@ const onChangeWordList = () => {
       }
     }
   });
-
-  wlEl.on('blur', (e) => {
-    const target = e.target;
-    if (target.classList.contains('word-input') || target.classList.contains('description-input')) {}
-  }, true);
-
-  wlEl.on('keypress', (e) => {
-    if (e.key === 'Enter') {
-      e.target.dispatchEvent(new Event('change', { bubbles: true }));
-      e.target.blur();
-    }
-  });
 }
 
 wl.onChange = onChangeWordList;
