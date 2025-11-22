@@ -17,7 +17,6 @@ export const renderWord = (word) => {
   return rowHtml.replace('<tr>', `<tr data-original-word="${word.word}">`);
 }
 
-
 export const renderAddForm = () => {
   return template('add-form');
 }

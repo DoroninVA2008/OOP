@@ -24,7 +24,7 @@
   <template id="table-row">
     <tr>
       <td class="word">
-        <input type="text" class="word-input" value="%word" />
+        %word
       </td>
       <td class="description">
         <input type="text" class="description-input" value="%description" />
@@ -41,6 +41,24 @@
     </form>
   </template>
 
+  <template id="grid-table">
+    <div class="grid-table">
+      <div class="grid-header">Слово</div>
+      <div class="grid-header">Описание</div>
+      <div class="grid-header">Действие</div>
+    </div>
+  </template>
+
+  <template id="grid-row">
+    <div class="grid-row">
+      <div class="grid-cell word">%word</div>
+      <div class="grid-cell description">
+        <input type="text" class="description-input" value="%description" />
+      </div>
+      <div class="grid-cell remove">-</div>
+    </div>
+  </template>
+  
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.js"></script>

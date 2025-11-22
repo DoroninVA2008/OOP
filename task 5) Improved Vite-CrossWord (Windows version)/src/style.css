@@ -125,3 +125,45 @@ td.remove:hover {
 .plus-button{width: 26.6px;
   height: 29px;
   margin-left: -3px}
+
+.grid-table {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  width: 478px;
+  margin: 20px 10px;
+  border: 1px solid #ddd;
+}
+
+.grid-header {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  text-align: left;
+}
+
+.grid-cell {
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  text-align: left;
+}
+
+.grid-header:nth-child(3n),
+.grid-cell:nth-child(3n) {
+  border-right: none;
+}
+
+.grid-row {
+  display: contents;
+}
+
+.grid-row:nth-child(even) .grid-cell {
+  background-color: #f9f9f9;
+}
+
+.grid-cell.remove:hover {
+  background-color: #bf616a;
+  cursor: pointer;
+}
