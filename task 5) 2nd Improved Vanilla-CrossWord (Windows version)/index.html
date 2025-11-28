@@ -6,59 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>2nd Vanilla-CrossWord</title>
   </head>
-  <template id="word-list">
-    <table class="word-list">
-      <thead>
-        <tr>
-          <th>Слово</th>
-          <th>Описание</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr></tr>
-      </tbody>
-    </table>
-  </template>
-
-  <template id="table-row">
-    <tr>
-      <td class="word">
-        %word
-      </td>
-      <td class="description">
-        <input type="text" class="description-input" value="%description" />
-      </td>
-      <td class="remove">-</td>
-    </tr>
-  </template>
-
-  <template id="add-form">
-    <form class="add-word">
-      <input type="text" name="word" class="word-input" />
-      <input type="text" name="description" class="description-input" />
-      <input type="button" value="+" class="plus-button" />
-    </form>
-  </template>
-
-  <template id="grid-table">
-    <div class="grid-table">
-      <div class="grid-header">Слово</div>
-      <div class="grid-header">Описание</div>
-      <div class="grid-header">Действие</div>
-    </div>
-  </template>
-
-  <template id="grid-row">
-    <div class="grid-row">
-      <div class="grid-cell word">%word</div>
-      <div class="grid-cell description">
-        <input type="text" class="description-input" value="%description" />
-      </div>
-      <div class="grid-cell remove">-</div>
-    </div>
-  </template>
-  
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.js"></script>

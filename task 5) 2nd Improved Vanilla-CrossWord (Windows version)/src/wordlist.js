@@ -1,32 +1,35 @@
-import { Word } from './word.js'
-
 export class WordList {
   constructor() {
-    this.words = [];
-    this.onChange = () => null;
+    this._words = [];
   }
 
   addWord(word, description) {
-        if (typeof word && description !== 'string', word && description.trim() === '') {
-          throw new Error("!!!Description!!!");
-        }
-
-        this.words.push(new Word(word, description));
-        this.onChange();
-      }
-
-  removeWord(word) {
-    this.words = this.words.filter((w) => !(w.word === word));
-    this.onChange();
+    const lowerWord = word.toLowerCase();
+    if (!this._words.some(item => item.word === lowerWord)) {
+      this._words.push({ word: lowerWord, description });
+      return true;
+    }
+    return false; 
   }
 
-  updateWord(oldWord, newWord, newDescription) {
-    const wordObj = this.words.find(w => w.word === oldWord);
-    if (wordObj) {
-      wordObj.word = newWord;
-      wordObj.description = newDescription;
+  getWords() {
+    return this._words;
+  }
+
+  updateWordDescription(wordText, newDescription) {
+    const lowerWord = wordText.toLowerCase();
+    const wordItem = this._words.find(item => item.word === lowerWord);
+    if (wordItem) {
+      wordItem.description = newDescription;
       return true;
     }
     return false;
+  }
+
+  deleteWord(wordText) {
+    const lowerWord = wordText.toLowerCase();
+    const initialLength = this._words.length;
+    this._words = this._words.filter(item => item.word !== lowerWord);
+    return this._words.length < initialLength;
   }
 }

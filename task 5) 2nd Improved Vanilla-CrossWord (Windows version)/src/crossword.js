@@ -1,10 +1,12 @@
 export class Crossword {
-  constructor(size = 10) {
+  constructor(size) {
     this.size = size;
-    this.grid = Array(size).fill(null).map(() => Array(size).fill(''));
-    this.placedWords = [];
+    this._grid = Array(size).fill(null).map(() => Array(size).fill(''));
+    this._placedWords = [];
   }
 
+  getGrid() { return this._grid; }
+  getPlacedWords() { return this._placedWords; }
   placeWord(word, row, col, isHorizontal) {
     const letters = word.toUpperCase().split('');
     
@@ -13,35 +15,27 @@ export class Crossword {
         return { success: false, error: 'Слово не помещается!' };
       }
       for (let i = 0; i < letters.length; i++) {
-        const existing = this.grid[row][col + i];
+        const existing = this._grid[row][col + i];
         if (existing && existing !== letters[i]) {
           return { success: false, error: 'Слово конфликтует с другим словом!' };
         }
       }
-      for (let i = 0; i < letters.length; i++) this.grid[row][col + i] = letters[i];
+      for (let i = 0; i < letters.length; i++) this._grid[row][col + i] = letters[i];
     } else {
       if (row + letters.length > this.size) {
         return { success: false, error: 'Слово не помещается!' };
       }
       for (let i = 0; i < letters.length; i++) {
-        const existing = this.grid[row + i][col];
+        const existing = this._grid[row + i][col];
         if (existing && existing !== letters[i]) {
           return { success: false, error: 'Слово конфликтует с другим словом!' };
         }
       }
-      for (let i = 0; i < letters.length; i++) this.grid[row + i][col] = letters[i];
+      for (let i = 0; i < letters.length; i++) this._grid[row + i][col] = letters[i];
     }
     
-    this.placedWords.push({ word, row, col, isHorizontal });
+    this._placedWords.push({ word: word.toUpperCase(), row, col, isHorizontal });
     return { success: true };
-  }
-
-  getGrid() {
-    return this.grid;
-  }
-
-  getPlacedWords() {
-    return this.placedWords;
   }
 }
 
@@ -96,4 +90,26 @@ export function renderCrossword(crossword, wordList) {
   `;
 
   return wrapperHTML;
+}
+
+function attachCrosswordHandlers() {
+  const crosswordGrid = app.querySelector('.crossword-grid');
+  if (crosswordGrid && crosswordGrid.dataset.handlersAttached !== 'true') {
+    crosswordGrid.dataset.handlersAttached = 'true';
+    crosswordGrid.addEventListener('click', handleCrosswordCellClick);
+  }
+
+  const exportButton = app.querySelector('.export-button');
+  if (exportButton && exportButton.dataset.handlersAttached !== 'true') {
+    exportButton.dataset.handlersAttached = 'true';
+    exportButton.addEventListener('click', exportToPDF);
+  }
+}
+
+
+function handleCrosswordCellClick(event) {
+  const cell = event.target.closest('.crossword-cell');
+  if (cell) {
+    handleCellClick(cell);
+  }
 }
