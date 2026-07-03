@@ -12,7 +12,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: resolve(__dirname, 'src/index.ts'),
+      entry: resolve(__dirname, 'src/main.ts'),
       formats: ['cjs', 'es'], // Создаем и CommonJS, и ESM версии
       fileName: (format) => `index.${format === 'es' ? 'js' : 'cjs'}`,
     },

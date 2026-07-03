@@ -1,6 +1,6 @@
 // src/models/TaskManager.ts
 //
-import { Task, type STask } from "./9Thask"; // @ts-ignore
+import { Task, type STask } from "./9thask.ts"; // @ts-ignore
 import { readFile, writeFile } from "fs/promises";
 
 interface TaskManagerActions {
