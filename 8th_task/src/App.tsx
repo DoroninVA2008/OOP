@@ -2,7 +2,7 @@ import { useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import heroImg from './assets/hero.png'
-import { Timer } from './2 pract/task8.1'
+import { Timer } from './2 Pract/8thask1.tsx'
 import './App.css'
 
 function App() {
