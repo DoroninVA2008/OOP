@@ -1,5 +1,5 @@
 // @ts-ignore Так можно сохранить todo.json
-import { TaskManager } from "./9ThaskManager";
+import { TaskManager } from "./9thaskManager.ts";
 
 const tm = new TaskManager();
 
