@@ -22,6 +22,15 @@ export interface Contact {
   description?: string;
   completed: boolean;
   priority?: 'low' | 'medium' | 'high';
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  birthDate?: Date;
+  address?: string;
+  isFavorite: boolean;
+  tags: string[];
+  updatedAt: Date;
 }
 
 export type NewContact = Omit<Contact, 'status' | 'priority?'>;
@@ -52,4 +61,36 @@ export interface Transaction {
   category: string;
   date: Date;
   description?: string;
+  type: 'income' | 'expense';
+}
+// TypeScript-код для week-14:
+export interface CreateContact {
+  firstName: string;
+  lastName: string;
+  phone: string;
+  email: string;
+  birthDate?: Date;
+  address?: string;
+  tags?: string[];
+}
+
+export interface UpdateContact {
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
+  birthDate?: Date;
+  address?: string;
+  isFavorite?: boolean;
+  tags?: string[];
+}
+
+export interface ContactFilter {
+  searchTerm?: string;
+  isFavorite?: boolean;
+  tags?: string[];
+  firstName?: string;
+  lastName?: string;
+  phone?: string;
+  email?: string;
 }

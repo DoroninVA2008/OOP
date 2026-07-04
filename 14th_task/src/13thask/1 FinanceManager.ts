@@ -1,8 +1,43 @@
 // Файл: src/core/FinanceManager.ts
-import type { Transaction } from '../12thask/types.ts';
+import type { Transaction } from '../12thask/types.ts'
+
+export interface AddTransactionResult {
+  success: boolean;
+  transaction?: Transaction;
+  error?: string;
+}
 
 export class FinanceManager {
+  getTransactions(): Transaction[] {
+    return this.transactions;
+  }
+  getBalance(): number {
+    return this.transactions.reduce((sum, t) => sum + t.amount, 0);
+  }
   private transactions: Transaction[] = [];
+
+  addTransaction(data: Omit<Transaction, 'id'>): AddTransactionResult {
+    try {
+      if (!data.category || data.category.trim() === '') {
+        return { success: false, error: 'Категория не может быть пустой' };
+      }
+      
+      if (isNaN(data.amount) || data.amount === 0) {
+        return { success: false, error: 'Сумма должна быть ненулевым числом' };
+      }
+
+      const transaction: Transaction = {
+        ...data,
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+        type: data.amount > 0 ? 'income' : 'expense'
+      };
+      
+      this.transactions.push(transaction);
+      return { success: true, transaction };
+    } catch (error) {
+      return { success: false, error: error instanceof Error ? error.message : 'Неизвестная ошибка' };
+    }
+  }
 
   // 1. Partial<T> для обновления
   // Мы можем обновить только несколько полей транзакции, а не все сразу.
@@ -40,9 +75,5 @@ export class FinanceManager {
   // Мы можем использовать её тип возврата для другой функции.
   getAnnualReport(): ReturnType<FinanceManager['calculateComplexReport']> {
     return this.calculateComplexReport();
-  }
-
-  addTransaction(transaction: Transaction) {
-    this.transactions.push(transaction);
   }
 }
