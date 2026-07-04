@@ -1,4 +1,5 @@
 // src/types.ts
+// TypeScript-код для week-12:
 export interface Task {
   id: string;         // Уникальный идентификатор
   title: string;      // Название задачи
@@ -44,3 +45,11 @@ export interface ContactStatus {
 }
 
 export type NewContactStatus = Partial<Record<keyof ContactStatus, string>>;
+// TypeScript-код для week-13:
+export interface Transaction {
+  id: string;
+  amount: number;
+  category: string;
+  date: Date;
+  description?: string;
+}
