@@ -1,13 +1,53 @@
 // core/ContactManager.ts
 import type { Contact, CreateContact, UpdateContact, ContactFilter } from '../12thask/types.ts';
+import { ContactStorage } from '../15thask/contac.ts';
 
 export class ContactManager {
   private contacts: Map<string, Contact> = new Map();
+  private storage: ContactStorage;
+  private autoSave: boolean;
 
-  // Добавление контакта
+  constructor(autoSave: boolean = true, storageFileName?: string) {
+    this.storage = new ContactStorage(storageFileName);
+    this.autoSave = autoSave;
+    
+    this.loadFromStorage();
+  }
+
+  private loadFromStorage(): void {
+    const savedContacts = this.storage.loadContacts();
+    savedContacts.forEach(contact => {
+      this.contacts.set(contact.id, contact);
+    });
+    
+    if (savedContacts.length > 0) {
+      console.log(`📂 Загружено ${savedContacts.length} контактов из файла: ${this.storage.getFilePath()}`);
+    }
+  }
+
+  private saveToStorage(): void {
+    if (!this.autoSave) return;
+    
+    const contacts = Array.from(this.contacts.values());
+    const success = this.storage.saveContacts(contacts);
+    
+    if (success && contacts.length > 0) {
+      console.log(`💾 Сохранено ${contacts.length} контактов в файл: ${this.storage.getFilePath()}`);
+    }
+  }
+
+  forceSave(): boolean {
+    const contacts = Array.from(this.contacts.values());
+    return this.storage.saveContacts(contacts);
+  }
+
+  forceLoad(): void {
+    this.contacts.clear();
+    this.loadFromStorage();
+  }
+
   addContact(data: CreateContact): { success: boolean; contact?: Contact; error?: string } {
     try {
-      // Валидация
       if (!data.firstName || data.firstName.trim() === '') {
         return { success: false, error: 'Имя обязательно для заполнения' };
       }
@@ -24,7 +64,6 @@ export class ContactManager {
         return { success: false, error: 'Email обязателен для заполнения' };
       }
 
-      // Проверка на уникальность телефона и email
       for (const contact of this.contacts.values()) {
         if (contact.phone === data.phone) {
           return { success: false, error: 'Контакт с таким номером телефона уже существует' };
@@ -46,29 +85,27 @@ export class ContactManager {
         tags: data.tags || [],
         createdAt: new Date(),
         updatedAt: new Date(),
-        name: '',
+        name: '', // @ts-ignore
         status: undefined,
         completed: false
       };
 
       this.contacts.set(contact.id, contact);
+      this.saveToStorage(); 
       return { success: true, contact };
     } catch (error) {
       return { success: false, error: error instanceof Error ? error.message : 'Неизвестная ошибка' };
     }
   }
 
-  // Получение всех контактов
   getAllContacts(): Contact[] {
     return Array.from(this.contacts.values());
   }
 
-  // Получение контакта по ID
   getContactById(id: string): Contact | undefined {
     return this.contacts.get(id);
   }
 
-  // Обновление контакта
   updateContact(id: string, data: UpdateContact): { success: boolean; contact?: Contact; error?: string } {
     const existingContact = this.contacts.get(id);
     
@@ -76,7 +113,6 @@ export class ContactManager {
       return { success: false, error: 'Контакт не найден' };
     }
 
-    // Проверка уникальности при обновлении
     if (data.phone && data.phone !== existingContact.phone) {
       for (const contact of this.contacts.values()) {
         if (contact.id !== id && contact.phone === data.phone) {
@@ -100,15 +136,18 @@ export class ContactManager {
     };
 
     this.contacts.set(id, updatedContact);
+    this.saveToStorage();
     return { success: true, contact: updatedContact };
   }
 
-  // Удаление контакта
   deleteContact(id: string): boolean {
-    return this.contacts.delete(id);
+    const result = this.contacts.delete(id);
+    if (result) {
+      this.saveToStorage();
+    }
+    return result;
   }
 
-  // Добавление/удаление из избранного
   toggleFavorite(id: string): { success: boolean; isFavorite?: boolean; error?: string } {
     const contact = this.contacts.get(id);
     
@@ -120,19 +159,19 @@ export class ContactManager {
     contact.isFavorite = newFavoriteStatus;
     contact.updatedAt = new Date();
     this.contacts.set(id, contact);
+    this.saveToStorage();
     
     return { success: true, isFavorite: newFavoriteStatus };
   }
 
-  // Поиск контактов по фильтру
   searchContacts(filter: ContactFilter): Contact[] {
     let results = Array.from(this.contacts.values());
 
     if (filter.searchTerm) {
       const term = filter.searchTerm.toLowerCase();
       results = results.filter(contact =>
-        contact.firstName.toLowerCase() === term ||
-        contact.lastName.toLowerCase() === term ||
+        contact.firstName.toLowerCase().includes(term) ||
+        contact.lastName.toLowerCase().includes(term) ||
         contact.phone.includes(term) ||
         contact.email.toLowerCase().includes(term)
       );
@@ -173,7 +212,6 @@ export class ContactManager {
     return results;
   }
 
-  // Получение всех уникальных тегов
   getAllTags(): string[] {
     const tagsSet = new Set<string>();
     for (const contact of this.contacts.values()) {
@@ -182,12 +220,14 @@ export class ContactManager {
     return Array.from(tagsSet);
   }
 
-  // Получение избранных контактов
   getFavoriteContacts(): Contact[] {
     return Array.from(this.contacts.values()).filter(contact => contact.isFavorite);
   }
 
-  // Статистика
+  getStoragePath(): string {
+    return this.storage.getFilePath();
+  }
+
   getStatistics(): {
     total: number;
     favorites: number;

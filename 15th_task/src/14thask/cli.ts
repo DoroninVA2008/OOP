@@ -1,7 +1,10 @@
+/// <reference types="node" />
 import inquirer from 'inquirer';
 import chalk from 'chalk';
 import { ContactManager } from './3 ContactManager.ts';
 import type { Contact, CreateContact, UpdateContact } from '../12thask/types.ts';
+
+console.log("Before prompt");
 
 class ContactCLI {
   private manager: ContactManager;
@@ -158,7 +161,7 @@ class ContactCLI {
 
     const { searchType } = await inquirer.prompt([
       {
-        type: 'list',
+        type: 'rawlist', // list
         name: 'searchType',
         message: 'Выберите тип поиска:',
         choices: [
@@ -241,7 +244,7 @@ class ContactCLI {
 
     const { contactId } = await inquirer.prompt([
       {
-        type: 'list',
+        type: 'rawlist', // list
         name: 'contactId',
         message: 'Выберите контакт для редактирования:',
         choices: contacts.map(c => ({
@@ -286,14 +289,14 @@ class ContactCLI {
       }
     ]);
 
-    const updateData: UpdateContact = {};
+    const updateData: UpdateContact = { length: 0 };
     if (updates.firstName) updateData.firstName = updates.firstName;
     if (updates.lastName) updateData.lastName = updates.lastName;
     if (updates.phone) updateData.phone = updates.phone;
     if (updates.email) updateData.email = updates.email;
     if (updates.isFavorite !== contact.isFavorite) updateData.isFavorite = updates.isFavorite;
 
-    if (Object.keys(updateData).length === 0) {
+    if (updateData.length === 0) {
       console.log(chalk.yellow('Нет изменений для сохранения.'));
       await this.pressAnyKey();
       return;
@@ -321,7 +324,7 @@ class ContactCLI {
 
     const { contactId } = await inquirer.prompt([
       {
-        type: 'list',
+        type: 'rawlist', // list
         name: 'contactId',
         message: 'Выберите контакт для удаления:',
         choices: contacts.map(c => ({
@@ -352,6 +355,63 @@ class ContactCLI {
     await this.pressAnyKey();
   }
 
+  private async saveContacts(): Promise<void> {
+  console.clear();
+  console.log(chalk.cyan.bold('\n💾 СОХРАНЕНИЕ КОНТАКТОВ В ФАЙЛ\n'));
+  
+  const { confirm } = await inquirer.prompt([
+    {
+      type: 'confirm',
+      name: 'confirm',
+      message: 'Сохранить все контакты в файл?',
+      default: true
+    }
+  ]);
+
+  if (confirm) {
+    const success = this.manager.forceSave();
+    if (success) {
+      console.log(chalk.green('✅ Контакты успешно сохранены!'));
+    } else {
+      console.log(chalk.red('❌ Ошибка при сохранении контактов'));
+    }
+  }
+  
+  await this.pressAnyKey();
+}
+
+  private async loadContacts(): Promise<void> {
+    console.clear();
+    console.log(chalk.cyan.bold('\n📂 ЗАГРУЗКА КОНТАКТОВ ИЗ ФАЙЛА\n'));
+    
+    const { confirm } = await inquirer.prompt([
+      {
+        type: 'confirm',
+        name: 'confirm',
+        message: 'Загрузить контакты из файла? (Текущие контакты будут заменены)',
+        default: false
+      }
+    ]);
+
+    if (confirm) {
+      this.manager.forceLoad();
+      const stats = this.manager.getStatistics();
+      console.log(chalk.green(`✅ Загружено ${stats.total} контактов из файла!`));
+    }
+    
+    await this.pressAnyKey();
+  }
+
+  private async showFilePath(): Promise<void> {
+    console.clear();
+    console.log(chalk.cyan.bold('\n🗂️ ПУТЬ К ФАЙЛУ КОНТАКТОВ\n'));
+    
+    console.log(chalk.gray(`Файл: ${this.manager.getStoragePath()}`));
+    console.log(chalk.gray(`Директория: ${process.cwd()}`));
+    
+    await this.pressAnyKey();
+  }
+
   private async toggleFavorite(): Promise<void> {
     const contacts = this.manager.getAllContacts();
     
@@ -363,7 +423,7 @@ class ContactCLI {
 
     const { contactId } = await inquirer.prompt([
       {
-        type: 'list',
+        type: 'rawlist', // list
         name: 'contactId',
         message: 'Выберите контакт:',
         choices: contacts.map(c => ({
@@ -413,67 +473,81 @@ class ContactCLI {
   }
 
   private async showMainMenu(): Promise<void> {
-    while (true) {
-      await this.showWelcomeScreen();
+  while (true) {
+    await this.showWelcomeScreen();
 
-      const { action } = await inquirer.prompt([
-        {
-          type: 'list',
-          name: 'action',
-          message: 'Выберите действие:',
-          pageSize: 15,
-          choices: [
-            { name: '➕  Добавить контакт', value: 'add' },
-            { name: '📋  Показать все контакты', value: 'list' },
-            { name: '🔍  Поиск контактов', value: 'search' },
-            { name: '✏️   Редактировать контакт', value: 'edit' },
-            { name: '🗑   Удалить контакт', value: 'delete' },
-            { name: '⭐  Добавить/удалить из избранного', value: 'favorite' },
-            { name: '⭐  Показать избранные контакты', value: 'showFavorites' },
-            { name: '📊  Статистика', value: 'stats' },
-            { name: '🚪  Выход', value: 'exit' }
-          ]
-        }
-      ]);
-
-      switch (action) {
-        case 'add':
-          await this.addContact();
-          break;
-        case 'list':
-          await this.viewContacts();
-          break;
-        case 'search':
-          await this.searchContacts();
-          break;
-        case 'edit':
-          await this.editContact();
-          break;
-        case 'delete':
-          await this.deleteContact();
-          break;
-        case 'favorite':
-          await this.toggleFavorite();
-          break;
-        case 'showFavorites':
-          const favorites = this.manager.getFavoriteContacts();
-          await this.viewContacts(favorites);
-          break;
-        case 'stats':
-          await this.showStatistics();
-          break;
-        case 'exit':
-          console.log(chalk.yellow('\n👋 До свидания! Хорошего дня!\n'));
-          process.exit(0);
+    const { action } = await inquirer.prompt([
+      {
+        type: 'rawlist',
+        name: 'action',
+        message: 'Выберите действие:',
+        pageSize: 15,
+        choices: [
+          { name: '➕  Добавить контакт', value: 'add' },
+          { name: '📋  Показать все контакты', value: 'list' },
+          { name: '🔍  Поиск контактов', value: 'search' },
+          { name: '✏️   Редактировать контакт', value: 'edit' },
+          { name: '🗑   Удалить контакт', value: 'delete' },
+          { name: '⭐  Добавить/удалить из избранного', value: 'favorite' },
+          { name: '⭐  Показать избранные контакты', value: 'showFavorites' },
+          { name: '📊  Статистика', value: 'stats' },
+          { name: '💾  Сохранить контакты в файл', value: 'save' },
+          { name: '📂  Загрузить контакты из файла', value: 'load' },
+          { name: '🗂️  Показать путь к файлу', value: 'filepath' },
+          { name: '🚪  Выход', value: 'exit' }
+        ]
       }
+    ]) as any;
+
+    switch (action) {
+      case 'add':
+        await this.addContact();
+        break;
+      case 'list':
+        await this.viewContacts();
+        break;
+      case 'search':
+        await this.searchContacts();
+        break;
+      case 'edit':
+        await this.editContact();
+        break;
+      case 'delete':
+        await this.deleteContact();
+        break;
+      case 'favorite':
+        await this.toggleFavorite();
+        break;
+      case 'showFavorites':
+        const favorites = this.manager.getFavoriteContacts();
+        await this.viewContacts(favorites);
+        break;
+      case 'stats':
+        await this.showStatistics();
+        break;
+      case 'save':
+        await this.saveContacts();
+        break;
+      case 'load':
+        await this.loadContacts();
+        break;
+      case 'filepath':
+        await this.showFilePath();
+        break;
+      case 'exit':
+        this.manager.forceSave();
+        console.log(chalk.yellow('\n👋 До свидания! Хорошего дня!\n'));
+        process.exit(0);
     }
   }
+}
 
   async start(): Promise<void> {
     await this.showMainMenu();
   }
 }
 
-// Запуск приложения
+console.log("After prompt");
+
 const cli = new ContactCLI();
 cli.start().catch(console.error);

@@ -15,7 +15,7 @@ export type NewTask = Omit<Task, 'id' | 'createdAt'>;
 // Главная сущность моего проекта
 export interface Contact {
   id: string;
-  name: string;
+  name: string; // @ts-ignore
   status: ContactStatus;
   createdAt: Date;
   title?: string;
@@ -73,8 +73,8 @@ export interface CreateContact {
   address?: string;
   tags?: string[];
 }
-
 export interface UpdateContact {
+  length: number;
   firstName?: string;
   lastName?: string;
   phone?: string;

@@ -1,4 +1,4 @@
-import type { Transaction, Task, NewTask, Contact, ContactStatus } from '../12thask/types.ts';
+import type { Transaction, Task, NewTask, Contact, ContactStatus } from '../12thask/types';
 
 export class TypesManager {
   private transactions: Transaction[] = [];
