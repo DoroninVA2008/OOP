@@ -1,0 +1,5 @@
+#!/usr/bin/env node
+import { cliService } from './src/services/cli.js'
+
+const argv = process.argv.slice(2);
+cliService(...argv);
